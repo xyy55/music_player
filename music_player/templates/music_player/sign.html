@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'music_player/css/styles.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
+    
+    <div class="wrapper">
+
+            <div class="container">
+                <h1>Welcome</h1>
+                <form class="form" action="" method="post">
+                    <input type="text" name='username' placeholder="用户名">
+                    <input type="password" name='password' placeholder="密码">
+                    <button type="submit" id="login-button">登录</button>
+                    <button type="submit" id="register-button">注册</button>
+                </form>
+            </div>
+            
+            <ul class="bg-bubbles">
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+            
+        </div>
+    <script type="text/javascript" src="{% static 'music_player/js/jquery-3.3.1.min.js' %}"></script>
+    <!-- 登录模块 -->
+    <script src="{% static 'music_player/js/login.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html> {% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Music</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'music_player/css/player.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'music_player/css/login.css' %}">
+</head>
+
+<body>
+    <!-- 头部logo -->
+    <div class="header">
+        <div class="logo">
+            Music Player
+        </div>
+        <div class="login">
+            <span class="btn {{ lg }}">{{ username }}</span>
+            <span class="btn lgo" style="display:{{ style }}">登出</span>
+        </div>
+    </div>
+    <!--class="header"-->
+
+    <!-- 中间主体区域 -->
+    <div class="center">
+        <div class="container">
+            <div class="btn-bar">
+                <!-- tab按钮区 -->
+                <div class="btn-box" id="btn-area">
+                    <span class="btn" data-action="playing">播放列表</span>
+                    <span class="btn" data-action="sheet">我的歌单</span>
+                    <span class="btn" data-action="search">个性推荐</span>
+                    <span>
+                        <input type="text" placeholder="搜索">
+                    </span>
+                </div>
+            </div>
+            <!--class="btn-bar"-->
+
+            <div class="data-area">
+                <!--歌曲歌单-->
+                <div id="sheet" class="data-box" hidden></div>
+
+                <!--音乐播放列表-->
+                <div id="main-list" class="music-list data-box"></div>
+            </div>
+            <!--class="data-area"-->
+
+            <!-- 右侧封面及歌词展示 -->
+            <div class="player" id="player">
+                <!--歌曲封面-->
+                <div class="cover">
+                    <img src="{% static 'music_player/img/player_cover.png' %}" class="music-cover" id="music-cover">
+                </div>
+                <!--滚动歌词-->
+                <div class="lyric">
+                    <ul id="lyric"></ul>
+                </div>
+                <div id="music-info" title="点击查看歌曲信息"></div>
+            </div>
+        </div>
+        <!--class="container"-->
+    </div>
+    <!--class="center"-->
+
+    <!-- 播放器底部区域 -->
+    <div class="footer">
+        <div class="container">
+            <div class="con-btn">
+                <a href="javascript:;" class="player-btn btn-prev" title="上一首"></a>
+                <a href="javascript:;" class="player-btn btn-play" title="暂停/继续"></a>
+                <a href="javascript:;" class="player-btn btn-next" title="下一首"></a>
+                <a href="javascript:;" class="player-btn btn-order" title="循环控制"></a>
+            </div>
+            <!--class="con-btn"-->
+
+            <div class="vol">
+                <div class="quiet">
+                    <a href="javascript:;" class="player-btn btn-quiet" title="静音"></a>
+                </div>
+                <div class="volume">
+                    <div class="volume-box">
+                        <div id="volume-progress" class="mkpgb-area"></div>
+                    </div>
+                </div>
+            </div>
+            <!--class="footer"-->
+
+            <div class="progress">
+                <div class="progress-box">
+                    <div id="music-progress" class="mkpgb-area"></div>
+                </div>
+            </div>
+            <!--class="progress"-->
+        </div>
+        <!--class="container"-->
+    </div>
+    <!--class="footer"-->
+
+    <script src="{% static 'music_player/js/jquery-3.3.1.min.js' %}"></script>
+
+    <!-- 播放器主体功能模块 -->
+    <script src="{% static 'music_player/js/player.js' %}"></script>
+    <!-- 封装函数及ui交互模块 -->
+    <script src="{% static 'music_player/js/functions.js' %}"></script>
+    <!-- 播放器歌词解析模块 -->
+    <script src="{% static 'music_player/js/lyric.js' %}"></script>
+    <!-- 弹出层模块 -->
+    <script src="{% static 'music_player/plugns/layer/layer.js' %}"></script>
+    <!-- 请求模块 -->
+    <script src="{% static 'music_player/js/ajax.js' %}"></script>
+
+
+</body>
+
+</html>
