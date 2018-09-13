@@ -2,9 +2,9 @@ from django.shortcuts import render, render_to_response
 from django import forms
 from .models import *
 from django.contrib.auth.hashers import make_password, check_password
-from django.http import HttpResponseRedirect, HttpResponse,JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
-from django.core import signing,serializers
+from django.core import signing, serializers
 import json
 
 # Create your views here.
@@ -18,7 +18,7 @@ class UserForm(forms.Form):
 # 新建一个全局变量
 users = {"username": "登录/注册",
          "style": "none",
-         "lg":"lg"}
+         "lg": "lg"}
 
 # 处理登录的方法
 def login(request):
@@ -42,7 +42,7 @@ def login(request):
             if use and check:
                 users["username"] = use.username
                 users["style"] = ""
-                users["lg"] = "" 
+                users["lg"] = ""
                 ticket = signing.dumps(use.username)
                 response = HttpResponseRedirect('/')
                 # 创建cookie
@@ -90,8 +90,8 @@ def register(request):
                 # 把cookie返回到游览器中
                 return response
 
-#退出登录的方法
-def logout(request):  
+# 退出登录的方法
+def logout(request):
     if request.method == 'GET':
         users["username"] = "登录/注册"
         users["style"] = "none"
@@ -130,8 +130,10 @@ def index(request):
 def sign(request):
     return render(request, 'music_player/sign.html')
 
+
 def upload(request):
     return render(request, 'music_player/upload.html')
+
 
 def get_songs(request):
     obj = song.objects.all().values()
@@ -139,7 +141,7 @@ def get_songs(request):
     for i in range(len(obj)):
         lrc_url = "media/"+obj[i]["lrc"]
         lrc = ""
-        f = open(lrc_url,'r')
+        f = open(lrc_url, 'r')
         for line in f:
             lrc = lrc + line
         f.close()
@@ -147,4 +149,46 @@ def get_songs(request):
         obj[i].pop("s_uuid")
     data = json.dumps(obj)
     return HttpResponse(data, content_type="application/json")
-    
+
+
+def add_songs(request):
+    if request.method == 'POST':
+        data = request.POST.dict()
+        cookies = request.COOKIES.get('ticket')
+        if cookies:
+            u = user.objects.filter(ticket=cookies).get()
+            songs = song.objects.filter(user_song__user_id=u.username)
+            sg = song.objects.all().values()[:][int(data["num"])]
+            for s in songs:
+                if s.s_uuid == sg["s_uuid"]:
+                    return HttpResponse("304", content_type="application/json")
+            song_id = str(sg["s_uuid"])
+            s = song.objects.filter(s_uuid=song_id).get()
+            listadd = user_song.objects.create(
+                user_id=u,
+                song_id=s
+            )
+    return HttpResponse("200", content_type="application/json")
+
+
+def get_my_songs(request):
+    if request.method == 'GET':
+        cookies = request.COOKIES.get('ticket')
+        u = user.objects.filter(ticket=cookies).get()
+        data = song.objects.filter(user_song__user_id=u.username)
+        data = list(data[:])
+        d = []
+        for i in range(len(data)):
+            dic = forms.models.model_to_dict(data[i])
+            lrc_url = "media/"+str(dic["lrc"])
+            lrc = ""
+            f = open(lrc_url, 'r')
+            for line in f:
+                lrc = lrc + line
+            f.close()
+            dic["lrc"] = lrc
+            dic["mp3"] = str(dic["mp3"])
+            dic["image"] = str(dic["image"])
+            d.append(dic)
+        d = json.dumps(d)
+    return HttpResponse(d, content_type="application/json")

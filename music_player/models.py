@@ -45,3 +45,11 @@ class song(models.Model):
 
     def __str__(self):
         return self.s_name
+
+class user_song(models.Model):
+    user_id = models.ForeignKey(user,on_delete=models.CASCADE)
+    song_id = models.ForeignKey(song,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.id)
+

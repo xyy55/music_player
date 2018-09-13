@@ -10,5 +10,7 @@ urlpatterns = [
     path('login/',views.login,name='login'),
     path('logout/',views.logout,name='logout'),
     path('upload/',views.upload,name='upload'),
-    path('get_songs/',views.get_songs,name='get_songs')
+    path('get_songs/',views.get_songs,name='get_songs'),
+    path('add_songs/',views.add_songs,name="add_songs"),
+    path('get_my_songs/',views.get_my_songs,name="get_my_songs")
 ]

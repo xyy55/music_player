@@ -5,3 +5,4 @@ from .models import *
 
 admin.site.register(user)
 admin.site.register(song)
+admin.site.register(user_song)
