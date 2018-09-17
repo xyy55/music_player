@@ -31,7 +31,6 @@ def login(request):
             # 获取到表单提交的值
             username = data.cleaned_data['username']
             password = data.cleaned_data['password']
-            print(username, password)
             # 把表单中取到的值和数据库里做对比
             try:
                 use = user.objects.get(username=username)
@@ -54,7 +53,7 @@ def login(request):
                 # 把cookie返回到游览器中
                 return response
             else:
-                return HttpResponseRedirect(reverse('music_player:index'))
+                return render(request, 'music_player/sign.html', {"warn":"用户名或密码错误！"})
 
 # 注册相应的方法
 def register(request):
@@ -147,7 +146,7 @@ def get_songs(request):
             lrc = lrc + line
         f.close()
         obj[i]["lrc"] = lrc
-        obj[i].pop("s_uuid")
+        obj[i]["s_uuid"] = str(obj[i]["s_uuid"])
     data = json.dumps(obj)
     return HttpResponse(data, content_type="application/json")
 
@@ -159,16 +158,16 @@ def add_songs(request):
         if cookies:
             u = user.objects.filter(ticket=cookies).get()
             songs = song.objects.filter(user_song__user_id=u.username)
-            sg = song.objects.all().values()[:][int(data["num"])]
             for s in songs:
-                if s.s_uuid == sg["s_uuid"]:
+                if str(s.s_uuid) == data["uuid"]:
                     return HttpResponse("304", content_type="application/json")
-            song_id = str(sg["s_uuid"])
-            s = song.objects.filter(s_uuid=song_id).get()
+            s = song.objects.filter(s_uuid=data["uuid"]).get()
             listadd = user_song.objects.create(
                 user_id=u,
                 song_id=s
             )
+        else:
+            return HttpResponse("304", content_type="application/json")
     return HttpResponse("200", content_type="application/json")
 
 
@@ -190,6 +189,7 @@ def get_my_songs(request):
             dic["lrc"] = lrc
             dic["mp3"] = str(dic["mp3"])
             dic["image"] = str(dic["image"])
+            dic["s_uuid"] = str(data[i].s_uuid)
             d.append(dic)
         d = json.dumps(d)
     return HttpResponse(d, content_type="application/json")
@@ -213,6 +213,7 @@ def search_songs(request):
                 dic["lrc"] = lrc
                 dic["mp3"] = str(dic["mp3"])
                 dic["image"] = str(dic["image"])
+                dic["s_uuid"] = str(songs[i].s_uuid)
                 d.append(dic)
             d = json.dumps(d)
             return HttpResponse(d, content_type="application/json")
@@ -259,6 +260,7 @@ def recommendation(request):
                 dic["lrc"] = lrc
                 dic["mp3"] = str(dic["mp3"])
                 dic["image"] = str(dic["image"])
+                dic["s_uuid"] = str(r_s.s_uuid)
                 d.append(dic)
             d = json.dumps(d)
             return HttpResponse(d, content_type="application/json")
@@ -283,3 +285,14 @@ def make_recommendation(request):
         else:
             print("该规则数据库中已经存在！")
     return HttpResponse()
+
+def delete_songs(request):
+    if request.method == 'POST':
+        data = request.POST.dict()
+        cookies = request.COOKIES.get('ticket')
+        if cookies:
+            u = user.objects.filter(ticket=cookies).get()
+            user_song.objects.filter(user_id=u.username,song_id=data["uuid"]).delete()
+        else:
+            return HttpResponse("304", content_type="application/json")
+    return HttpResponse("200", content_type="application/json")

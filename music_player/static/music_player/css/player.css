@@ -190,9 +190,6 @@ input {
 .list-item:hover .list-menu {
     display: block;
 }
-.list-head:hover .list-menu {
-    display: none;
-}
 /* 正在播放的那项数字 */
 .list-playing .list-num {
     background: url("../img/wave.gif") 10px 20px no-repeat;
@@ -225,6 +222,12 @@ input {
 }
 .icon-add:hover {
     background-position: -120px -80px;
+}
+.icon-delete {
+    background-position: -80px -40px;
+}
+.icon-delete:hover {
+    background-position: -120px -40px;
 }
 
 

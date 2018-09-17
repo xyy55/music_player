@@ -111,9 +111,9 @@ function addListhead() {
     rem.mainList.append(html);
 }
 // 列表中新增一项
-// 参数：编号、名字、歌手、专辑
-function addItem(no, name, auth) {
-    var html = '<div class="list-item lst" data-no="' + (no - 1) + '">' +
+// 参数：编号、名字、歌手
+function addItem(no, name, auth, s_uuid) {
+    var html = '<div class="list-item lst" data-no="' + (no - 1) + '"data-uuid="'+s_uuid+'">' +
         '    <span class="list-num">' + no + '</span>' +
         '    <span class="auth-name">' + auth + '</span>' +
         '    <span class="music-name">' + name + '</span>' +
@@ -126,22 +126,38 @@ $(".music-list").on("mousemove", ".list-item", function () {
     if (isNaN(num)) return false;
     // 还没有追加菜单则加上菜单
     if (!$(this).data("loadmenu")) {
-        var target = $(this).find(".music-name");
-        var html = '<span class="music-name-cult">' +
-            target.html() +
-            '</span>' +
-            '<div class="list-menu" data-no="' + num + '">' +
-            '<span class="list-icon icon-play" data-function="play" title="点击播放这首歌"></span>' +
-            '<span class="list-icon icon-download" data-function="download" title="点击下载这首歌"></span>' +
-            '<span class="list-icon icon-add" data-function="add" title="点击添加到歌单"></span>' +
-            '</div>';
-        target.html(html);
-        $(this).data("loadmenu", true);
+        if($(".active").hasClass("my-list")){
+            var target = $(this).find(".music-name");
+            var html = '<span class="music-name-cult">' +
+                target.html() +
+                '</span>' +
+                '<div class="list-menu" data-no="' + num + '">' +
+                '<span class="list-icon icon-play" data-function="play" title="点击播放这首歌"></span>' +
+                '<span class="list-icon icon-download" data-function="download" title="点击下载这首歌"></span>' +
+                '<span class="list-icon icon-delete" data-function="delete" title="点击从歌单删除"></span>' +
+                '</div>';
+            target.html(html);
+            $(this).data("loadmenu", true);
+        }else{
+            var target = $(this).find(".music-name");
+            var html = '<span class="music-name-cult">' +
+                target.html() +
+                '</span>' +
+                '<div class="list-menu" data-no="' + num + '">' +
+                '<span class="list-icon icon-play" data-function="play" title="点击播放这首歌"></span>' +
+                '<span class="list-icon icon-download" data-function="download" title="点击下载这首歌"></span>' +
+                '<span class="list-icon icon-add" data-function="add" title="点击添加到歌单"></span>' +
+                '</div>';
+            target.html(html);
+            $(this).data("loadmenu", true);
+        }
+        
     }
 });
 // 列表中的菜单点击
-$(".music-list").on("click", ".icon-play,.icon-download,.icon-add", function () {
+$(".music-list").on("click", ".icon-play,.icon-download,.icon-add,.icon-delete", function () {
     var num = parseInt($(this).parent().data("no"));
+    var uuid = $(this).parent().parent().parent().data("uuid")
     if (isNaN(num)) return false;
     switch ($(this).data("function")) {
         case "play":    // 播放
@@ -163,10 +179,18 @@ $(".music-list").on("click", ".icon-play,.icon-download,.icon-add", function () 
                 layer.confirm("确定要添加到歌单吗？", {
                     btn: ['是的', '没有']
                   },function(){
-                    var data = { "num": num }
+                    var data = { "uuid": uuid }
                     add_songs(data);
                   });
             }
+            break;
+        case "delete":  //从歌单删除
+            layer.confirm("确定要从歌单删除吗？", {
+                btn: ['是的', '没有']
+            },function(){
+                var data = { "uuid": uuid }
+                delete_songs(data);
+            });
             break;
     }
     return true;
@@ -175,7 +199,7 @@ $(".music-list").on("click", ".icon-play,.icon-download,.icon-add", function () 
 function refreshList() {
     $(".lst").remove();
     for (let i = 0; i < music_list.length; i++) {
-        addItem(i + 1, music_list[i].s_name, music_list[i].s_author)
+        addItem(i + 1, music_list[i].s_name, music_list[i].s_author,music_list[i].s_uuid)
     }
 }
 //获取浏览器cookies
@@ -190,10 +214,14 @@ function getCookie(cname) {
 }
 // 歌单点击事件
 $(".play-list").click(function () {
+    $(".active").removeClass("active")
     get_songs("get_songs/");    //加载歌曲
     refreshList(); //刷新列表
+    $(this).addClass("active")
 });
 $(".my-list").click(function () {
+    $(".active").removeClass("active")
+    $(this).addClass("active")
     var ticket = getCookie("ticket");
     if (ticket == "") {
         layer.msg("请先登录");
@@ -208,10 +236,10 @@ $(".recommendation").click(function () {
         layer.msg("请先登录");
     } else {
         recommendation();
-        refreshList();
     }
 });
 $(".search").click(function(){
+    $(".active").removeClass("active")
     search_songs();
     refreshList();
 })

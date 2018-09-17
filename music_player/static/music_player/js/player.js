@@ -72,6 +72,7 @@ function pause() {
             playList();
             play();
         }
+        $(".list-item[data-no='" + rem.id + "']").addClass("list-playing");  // 添加正在播放样式
         rem.audio[0].play();
     }
 }
@@ -230,7 +231,11 @@ function playList() {
 function nextMusic() {
     $(".list-playing").removeClass("list-playing");        // 移除其它的正在播放
     if (rem.order == 3){
-        rem.id = parseInt(Math.random() * music_list.length);
+        var id = parseInt(Math.random() * music_list.length);
+        while(id == rem.id){
+            id = parseInt(Math.random() * music_list.length);
+        }
+        rem.id = id;
         playList();
         play();
     }else if(rem.order == 1){
@@ -251,7 +256,11 @@ function nextMusic() {
 function prevMusic() {
     $(".list-playing").removeClass("list-playing");        // 移除其它的正在播放
     if (rem.order == 3){
-        rem.id = parseInt(Math.random() * music_list.length);
+        var id = parseInt(Math.random() * music_list.length);
+        while(id == rem.id){
+            id = parseInt(Math.random() * music_list.length);
+        }
+        rem.id = id;
         playList();
         play();
     }else if(rem.order == 1){
