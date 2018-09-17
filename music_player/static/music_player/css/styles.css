@@ -4,6 +4,10 @@
   padding: 0;
   font-weight: 300;
 }
+.warn {
+  color: red;
+  display: block;
+}
 body {
   font-family: 'Source Sans Pro', sans-serif;
   color: white;

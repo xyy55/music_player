@@ -28,6 +28,9 @@ input {
     padding-left: 10px;
     font-size: 14px;
 }
+#search {
+    margin-left: 150px
+}
 
 /*音乐播放器主体内容*/
 .logo:hover {

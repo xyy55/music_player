@@ -53,3 +53,9 @@ class user_song(models.Model):
     def __str__(self):
         return str(self.id)
 
+class association_rules(models.Model):
+    antecedent = models.CharField(max_length=255)
+    consequent = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(self.id)

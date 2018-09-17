@@ -12,5 +12,8 @@ urlpatterns = [
     path('upload/',views.upload,name='upload'),
     path('get_songs/',views.get_songs,name='get_songs'),
     path('add_songs/',views.add_songs,name="add_songs"),
-    path('get_my_songs/',views.get_my_songs,name="get_my_songs")
+    path('get_my_songs/',views.get_my_songs,name="get_my_songs"),
+    path('search_songs/',views.search_songs,name="search_songs"),
+    path('recommendation/',views.recommendation,name="recommendation"),
+    path('make_recommendation/',views.make_recommendation,name="make_recommendation")
 ]

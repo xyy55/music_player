@@ -192,7 +192,7 @@ function getCookie(cname) {
 $(".play-list").click(function () {
     get_songs("get_songs/");    //加载歌曲
     refreshList(); //刷新列表
-})
+});
 $(".my-list").click(function () {
     var ticket = getCookie("ticket");
     if (ticket == "") {
@@ -201,7 +201,17 @@ $(".my-list").click(function () {
         get_songs("get_my_songs/");
         refreshList();
     }
-})
+});
 $(".recommendation").click(function () {
-    layer.msg("个性推荐");
+    var ticket = getCookie("ticket");
+    if (ticket == "") {
+        layer.msg("请先登录");
+    } else {
+        recommendation();
+        refreshList();
+    }
+});
+$(".search").click(function(){
+    search_songs();
+    refreshList();
 })

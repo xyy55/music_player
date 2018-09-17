@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.core import signing, serializers
 import json
+from .recommendation import my_apriori
 
 # Create your views here.
 
@@ -69,7 +70,7 @@ def register(request):
             try:
                 # 判断用户是否已经注册了
                 registjudge = user.objects.filter(username=username).get()
-                return HttpResponse('用户已经存在')
+                return render(request, 'music_player/sign.html', {"warn":"用户名已经存在!"})
             except:
                 # 把注册的数据保存到数据库中
                 registadd = user.objects.create(
@@ -192,3 +193,93 @@ def get_my_songs(request):
             d.append(dic)
         d = json.dumps(d)
     return HttpResponse(d, content_type="application/json")
+
+def search_songs(request):
+    if request.method == 'POST':
+        data = request.POST.dict()
+        songs = song.objects.filter(s_name=data["data"])
+        d = []
+        if len(songs) == 0:
+            return HttpResponse("304", content_type="application/json")
+        else:
+            for i in range(len(songs)):
+                dic = forms.models.model_to_dict(songs[i])
+                lrc_url = "media/"+str(dic["lrc"])
+                lrc = ""
+                f = open(lrc_url, 'r')
+                for line in f:
+                    lrc = lrc + line
+                f.close()
+                dic["lrc"] = lrc
+                dic["mp3"] = str(dic["mp3"])
+                dic["image"] = str(dic["image"])
+                d.append(dic)
+            d = json.dumps(d)
+            return HttpResponse(d, content_type="application/json")
+
+    return HttpResponse()
+
+def recommendation(request):
+    if request.method == 'POST':
+        cookies = request.COOKIES.get('ticket')
+        rules = list(association_rules.objects.all())
+        u = user.objects.filter(ticket=cookies).get()
+        s = song.objects.filter(user_song__user_id=u.username)
+        song_id = []
+        rec_songs = []
+        d = []
+        for i in s:
+            song_id.append(str(i.s_uuid))
+        for rule in rules:
+            ant = rule.antecedent
+            con = rule.consequent
+            if "," in ant:
+                ant = ant.split(",")
+            if type(ant) == str:
+                if ant in song_id and con not in song_id:
+                    if con not in rec_songs:
+                        rec_songs.append(con)
+            else:
+                if set(ant).issubset(set(song_id)) and con not in song_id:
+                    if con not in rec_songs:
+                        rec_songs.append(con)
+            
+        if len(rec_songs)==0:
+            return HttpResponse("304", content_type="application/json")
+        else:
+            for i in rec_songs:
+                r_s = song.objects.filter(s_uuid=i).get()
+                dic = forms.models.model_to_dict(r_s)
+                lrc_url = "media/"+str(dic["lrc"])
+                lrc = ""
+                f = open(lrc_url, 'r')
+                for line in f:
+                    lrc = lrc + line
+                f.close()
+                dic["lrc"] = lrc
+                dic["mp3"] = str(dic["mp3"])
+                dic["image"] = str(dic["image"])
+                d.append(dic)
+            d = json.dumps(d)
+            return HttpResponse(d, content_type="application/json")
+    return HttpResponse()
+
+def make_recommendation(request):
+    users = user.objects.all()
+    items = []
+    for u in users:
+        item = []
+        for s in song.objects.filter(user_song__user_id=u):
+            item.append(str(s.s_uuid))
+        items.append(item)
+    a = my_apriori(items, 0.2, 0.6)
+    for key in a.confidence_select.keys():
+        association = key.split("-->")
+        if len(association_rules.objects.filter(antecedent=association[0],consequent=association[1])) == 0:
+            associationadd = association_rules.objects.create(
+                antecedent=association[0],
+                consequent=association[1]
+            )
+        else:
+            print("该规则数据库中已经存在！")
+    return HttpResponse()
